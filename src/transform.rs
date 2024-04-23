@@ -417,7 +417,8 @@ impl VisitMut for TransformVisitor {
 					specifiers: vec![import],
 					src: Box::new(src),
 					type_only: false,
-					asserts: None,
+					with: None,
+					phase: Default::default(),
 				})),
 			);
 		} else if let Some(Expr::Ident(ident)) = self.template.as_mut().map(|tpl| tpl.unwrap_parens_mut()) {
