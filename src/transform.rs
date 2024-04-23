@@ -292,7 +292,7 @@ impl TransformVisitor {
 					let [TplElement { cooked, raw, .. }] = &quasis[..] else {
 						unreachable(*span)
 					};
-					let value = cooked.as_ref().unwrap_or(&raw);
+					let value = cooked.as_ref().unwrap_or(raw);
 					let last = self.quasi_last_mut();
 					for line in value.lines().map(str::trim).filter(|line| !line.is_empty()) {
 						_ = writeln!(last, "{line}");

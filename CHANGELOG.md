@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.0
+
+- Correctly escape non-void elements
+- Fix spacing between inline elements and text
+
 ## 0.1.2
 
 - Minor formatting change for tag-ends
