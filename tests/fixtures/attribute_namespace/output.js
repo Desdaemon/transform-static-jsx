@@ -1,1 +1,1 @@
-String.raw`<div foo:bar="123" foo:baz />`
+String.raw`<div foo:bar="123" foo:baz></div>`

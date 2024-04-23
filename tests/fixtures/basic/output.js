@@ -1,1 +1,1 @@
-String.raw`<div />`
+String.raw`<div></div>`

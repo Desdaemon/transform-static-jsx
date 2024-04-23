@@ -221,38 +221,54 @@ impl TransformVisitor {
 			"wbr"
 		);
 
+		let last = self.quasi_last_mut();
+		if last.ends_with(' ') {
+			last.pop();
+		}
 		if elt.children.is_empty() {
 			if VOID_ELEMENTS.contains(&name) {
-				self.quasi_last_mut().push('>');
+				last.push('>');
 			} else {
-				self.quasi_last_mut().push_str("/>");
+				_ = write!(last, "></{name}>");
 			}
 			return;
 		}
-		{
-			let last = self.quasi_last_mut();
-			if last.ends_with(' ') {
-				last.pop();
-			}
-			last.push('>');
-		}
-		for child in &mut elt.children {
-			self.fold_jsx_child(child);
+		last.push('>');
+		let mut iter = elt.children.iter_mut().peekable();
+		while let Some(child) = iter.next() {
+			self.fold_jsx_child(child, iter.peek().map(|next| &**next));
 		}
 		_ = write!(self.quasi_last_mut(), "</{name}>")
 	}
 
-	fn fold_jsx_child(&mut self, child: &mut JSXElementChild) {
+	fn fold_jsx_child(&mut self, child: &mut JSXElementChild, next: Option<&JSXElementChild>) {
 		match child {
 			JSXElementChild::JSXText(JSXText { value, .. }) => {
-				_ = self.quasi_last_mut().write_str(value.trim());
+				let last = self.quasi_last_mut();
+				let trimmed = html_escape::encode_text_minimal_to_string(value.trim(), last);
+				if let Some(JSXElementChild::JSXElement(next)) = next {
+					if let JSXElementName::Ident(ident) = &next.opening.name {
+						static INLINE_ELEMENTS: phf::Set<&str> = phf::phf_set!(
+							"b", "big", "i", "small", "tt", "abbr", "acronym", "cite", "code", "dfn", "em", "kbd",
+							"strong", "samp", "var", "a", "bdo", "br", "img", "map", "object", "q", "script", "span",
+							"sub", "sup", "button", "input", "label", "select", "textarea"
+						);
+						if !trimmed.is_empty()
+							&& value.ends_with(|c: char| c.is_ascii_whitespace())
+							&& INLINE_ELEMENTS.contains(&ident.sym)
+						{
+							last.push(' ');
+						}
+					}
+				}
 			}
 			JSXElementChild::JSXElement(elt) => {
 				self.fold_jsx_element(elt);
 			}
 			JSXElementChild::JSXFragment(JSXFragment { children, .. }) => {
-				for child in children {
-					self.fold_jsx_child(child);
+				let mut iter = children.iter_mut().peekable();
+				while let Some(child) = iter.next() {
+					self.fold_jsx_child(child, iter.peek().map(|next| &**next));
 				}
 			}
 			JSXElementChild::JSXExprContainer(JSXExprContainer {
@@ -261,8 +277,9 @@ impl TransformVisitor {
 			}) => match expr.as_mut() {
 				Expr::JSXElement(elt) => self.fold_jsx_element(elt),
 				Expr::JSXFragment(frag) => {
-					for child in &mut frag.children {
-						self.fold_jsx_child(child)
+					let mut iter = frag.children.iter_mut().peekable();
+					while let Some(child) = iter.next() {
+						self.fold_jsx_child(child, iter.peek().map(|next| &**next));
 					}
 				}
 				Expr::Lit(Lit::Str(str)) => {
@@ -363,8 +380,9 @@ impl VisitMut for TransformVisitor {
 		if let Some(mut frag) = expr_as_jsx_fragment(n) {
 			self.swap_state(|me| {
 				me.quasis.push(String::new());
-				for child in frag.children.iter_mut() {
-					me.fold_jsx_child(child);
+				let mut iter = frag.children.iter_mut().peekable();
+				while let Some(child) = iter.next() {
+					me.fold_jsx_child(child, iter.peek().map(|next| &**next));
 				}
 				*n = me.replace_jsx_element(None);
 			});

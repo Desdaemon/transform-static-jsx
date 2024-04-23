@@ -1,1 +1,1 @@
-String.raw`<div ${{$$spread: foo}} />`
+String.raw`<div ${{ $$spread: foo }}></div>`

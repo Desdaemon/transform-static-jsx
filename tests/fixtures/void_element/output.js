@@ -1,1 +1,1 @@
-String.raw`<img src="foo" ><hr >`
+String.raw`<img src="foo"><hr>`

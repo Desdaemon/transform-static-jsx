@@ -1,3 +1,3 @@
 String.raw`<div ${{
-    "foo": foo
-}}/>`
+	"foo": foo
+}}></div>`

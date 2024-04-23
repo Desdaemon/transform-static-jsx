@@ -1,1 +1,1 @@
-String.raw`<foo:bar />`
+String.raw`<foo:bar></foo:bar>`
