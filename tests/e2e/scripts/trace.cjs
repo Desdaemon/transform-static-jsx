@@ -7,7 +7,7 @@ __experimental_registerGlobalTraceConfig({
 	fileName: ".trace.json",
 });
 
-transformFile("main.test.js", {
+transformFile("main.test.jsx", {
 	cwd: require.resolve(".."),
 	jsc: {
 		experimental: {

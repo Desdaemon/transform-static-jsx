@@ -4,6 +4,7 @@
 		"allowJs": true,
 		"checkJs": true,
 		"jsx": "preserve",
-		"module": "nodenext"
+		"module": "nodenext",
+		"moduleResolution": "bundler"
 	}
 }

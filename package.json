@@ -23,6 +23,9 @@
 		"dist": "npm run prepublishOnly && npm run prepack",
 		"lint": "prettier -w . && cargo +nightly fmt"
 	},
+	"peerDependencies": {
+		"@swc/core": "^1.4.16"
+	},
 	"files": [
 		"swc_plugin_static_jsx.wasm",
 		"types.d.ts",
